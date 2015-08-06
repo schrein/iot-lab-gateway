@@ -75,7 +75,8 @@ class ExperimentRunningMock(test_integration_mock.GatewayCodeMock):
         answers = []
         cmd = command.split()
         for _itr in range(0, num_times):  # pylint:disable=unused-variable
-            ans = OpenNodeConnection.send_one_command(cmd)
+            # the mega needs at least 1 second
+            ans = OpenNodeConnection.send_one_command(cmd, wait_after_start=1.5)
             ans = ' '.join(ans) if ans is not None else None
             answers.append(ans)
             time.sleep(step)

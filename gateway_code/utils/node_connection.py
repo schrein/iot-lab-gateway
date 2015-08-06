@@ -36,10 +36,11 @@ class OpenNodeConnection(object):
     HOST = 'localhost'
     PORT = 20000
 
-    def __init__(self, host=HOST, port=PORT, timeout=5.0):
+    def __init__(self, host=HOST, port=PORT, timeout=5.0, wait_after_start=0):
         self.address = (host, port)
         self.timeout = timeout
         self.fd = None  # pylint:disable=invalid-name
+        self.wait_after_start = wait_after_start
 
     def start(self):
         """ Connect to the serial_redirection """
@@ -47,6 +48,7 @@ class OpenNodeConnection(object):
             sock = self.try_connect(self.address)
             sock.settimeout(self.timeout)  # pylint:disable=no-member
             self.fd = sock.makefile('rw')
+            time.sleep(self.wait_after_start)
             return 0
         except IOError:
             return 1
