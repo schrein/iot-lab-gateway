@@ -42,8 +42,10 @@ _FLASH.add_argument('firmware', type=str, help="Firmware name")
 def _node_type(node):
     """ Get node avrdude config for 'node' in ('LEONARDO') """
     from gateway_code.open_nodes.node_leonardo import NodeLeonardo
+    from gateway_code.open_nodes.node_mega import NodeMega
     _config = {
         'LEONARDO': NodeLeonardo,
+        'MEGA': NodeMega,
     }
     return _config[node]
 
@@ -52,7 +54,9 @@ def main():
     """ openocd main function """
     opts = PARSER.parse_args()
     node = _node_type(opts.node)
-    ret = avrdude.AvrDude.trigger_bootloader(node.TTY, node.TTY_PROG)
+    ret = 0
+    if node == 'LEONARDO':
+        ret += avrdude.AvrDude.trigger_bootloader(node.TTY, node.TTY_PROG)
     avr = avrdude.AvrDude(node.AVRDUDE_CONF, verb=True)
 
     if opts.cmd == 'flash':
