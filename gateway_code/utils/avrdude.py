@@ -69,7 +69,7 @@ class AvrDude(object):
             return subprocess_timeout.call(timeout=self.timeout,
                                            **kwargs)
         except subprocess_timeout.TimeoutExpired as exc:
-            LOGGER.error("Openocd '%s' timeout: %s", command_str, exc)
+            LOGGER.error("Avrdude '%s' timeout: %s", command_str, exc)
             return 1
 
     def _avrdude_args(self, command_str):
