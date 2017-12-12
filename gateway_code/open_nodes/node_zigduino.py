@@ -25,6 +25,7 @@ import time
 import logging
 
 import serial
+from dbus import types
 
 from gateway_code.config import static_path
 from gateway_code import common
@@ -60,6 +61,13 @@ class NodeZigduino(object):
 
     def __init__(self):
         self.serial_redirection = SerialRedirection(self.TTY, self.BAUDRATE)
+
+        original_redirection_start = self.serial_redirection.start
+        def new_redirection_start(instance):
+            original_redirection_start()
+            time.sleep(2)
+        self.serial_redirection.start = types.MethodType(new_redirection_start, self.serial_redirection)
+
         self.avrdude = AvrDude(self.AVRDUDE_CONF)
 
     @logger_call("Setup of Zigduino node")
