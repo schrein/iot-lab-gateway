@@ -155,3 +155,15 @@ class SerialRedirection(threading.Thread):
                 LOGGER.warning('%s not found', self.tty)
             time.sleep(0.5)  # prevent quick loop
         return retcode
+
+
+class PausedSerialRedirection(SerialRedirection):
+    """ SerialRedirection that pauses after start() """
+    def __init__(self, pause, tty, baudrate):
+        self.pause = pause
+        super(PausedSerialRedirection, self).__init__(tty, baudrate)
+
+    def start(self):
+        value = super(PausedSerialRedirection, self).start()
+        time.sleep(self.pause)
+        return value
