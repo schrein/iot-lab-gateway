@@ -279,7 +279,7 @@ class AutoTestManager(object):  # pylint:disable=too-many-public-methods
 
             # switch to DC and configure open node
             self._setup_open_node_connection()
-            time.sleep(3)
+            time.sleep(1)
             self.check_echo()
             self.check_get_time()
 

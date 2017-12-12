@@ -26,7 +26,6 @@
 
 import os
 import sys
-import time
 
 from nose.plugins.attrib import attr
 
@@ -59,8 +58,6 @@ class TestAutoTests(test_integration_mock.GatewayCodeMock):
             self.assertTrue(os.path.exists(self.board_cfg.board_class.TTY))
         else:
             self.g_m.open_node.serial_redirection.start()
-            # wait 2s Zigduino TTY is available
-            time.sleep(2)
             ret = OpenNodeConnection.send_one_command(['get_time'])
             self.g_m.open_node.serial_redirection.stop()
             self.assertIsNotNone(ret)
