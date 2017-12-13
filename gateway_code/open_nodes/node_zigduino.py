@@ -23,9 +23,9 @@
 
 import time
 import logging
+import types
 
 import serial
-from dbus import types
 
 from gateway_code.config import static_path
 from gateway_code import common
@@ -35,6 +35,7 @@ from gateway_code.utils.avrdude import AvrDude
 from gateway_code.utils.serial_redirection import SerialRedirection
 
 LOGGER = logging.getLogger('gateway_code')
+
 
 
 class NodeZigduino(object):
@@ -64,8 +65,10 @@ class NodeZigduino(object):
 
         original_redirection_start = self.serial_redirection.start
         def new_redirection_start(instance):
-            original_redirection_start()
-            time.sleep(2)
+            ret_val = 0
+            ret_val += original_redirection_start()
+            #time.sleep(2)
+            return ret_val
         self.serial_redirection.start = types.MethodType(new_redirection_start, self.serial_redirection)
 
         self.avrdude = AvrDude(self.AVRDUDE_CONF)
