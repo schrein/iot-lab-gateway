@@ -23,7 +23,6 @@
 
 import time
 import logging
-import types
 
 import serial
 
@@ -62,15 +61,6 @@ class NodeZigduino(object):
 
     def __init__(self):
         self.serial_redirection = SerialRedirection(self.TTY, self.BAUDRATE)
-
-        original_redirection_start = self.serial_redirection.start
-        def new_redirection_start(instance):
-            ret_val = 0
-            ret_val += original_redirection_start()
-            #time.sleep(2)
-            return ret_val
-        self.serial_redirection.start = types.MethodType(new_redirection_start, self.serial_redirection)
-
         self.avrdude = AvrDude(self.AVRDUDE_CONF)
 
     @logger_call("Setup of Zigduino node")
