@@ -36,7 +36,6 @@ from gateway_code.utils.serial_redirection import SerialRedirection
 LOGGER = logging.getLogger('gateway_code')
 
 
-
 class NodeZigduino(object):
     """Open node Zigduino implemention."""
 
