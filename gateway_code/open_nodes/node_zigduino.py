@@ -26,6 +26,7 @@ import logging
 import types
 
 import serial
+import termios
 
 from gateway_code.config import static_path
 from gateway_code import common
@@ -35,7 +36,6 @@ from gateway_code.utils.avrdude import AvrDude
 from gateway_code.utils.serial_redirection import SerialRedirection
 
 LOGGER = logging.getLogger('gateway_code')
-
 
 
 class NodeZigduino(object):
@@ -62,15 +62,22 @@ class NodeZigduino(object):
 
     def __init__(self):
         self.serial_redirection = SerialRedirection(self.TTY, self.BAUDRATE)
-
         original_redirection_start = self.serial_redirection.start
+
         def new_redirection_start(instance):
             ret_val = 0
-            ret_val += original_redirection_start()
-            #time.sleep(2)
-            return ret_val
-        self.serial_redirection.start = types.MethodType(new_redirection_start, self.serial_redirection)
+            LOGGER.debug("Deactivate Zigduino DTR")
+            with open(self.TTY) as f:
+                attrs = termios.tcgetattr(f)
+                attrs[2] = attrs[2] & ~termios.HUPCL
+                termios.tcsetattr(f, termios.TCSAFLUSH, attrs)
+            LOGGER.debug("Deactivate Zigduino DTR [DONE]")
 
+            ret_val += original_redirection_start()
+            return ret_val
+
+        self.serial_redirection.start = types.MethodType(
+                new_redirection_start, self.serial_redirection)
         self.avrdude = AvrDude(self.AVRDUDE_CONF)
 
     @logger_call("Setup of Zigduino node")
