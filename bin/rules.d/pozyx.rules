@@ -1,0 +1,2 @@
+# Pozyx Anchor
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", SYMLINK+="iotlab/ttyON_POZYX"
