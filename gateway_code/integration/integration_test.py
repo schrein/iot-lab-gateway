@@ -46,6 +46,8 @@ from gateway_code.autotest import autotest
 from gateway_code.utils.node_connection import OpenNodeConnection
 from gateway_code.common import wait_cond, abspath, wait_tty, wait_no_tty
 from gateway_code.common import object_attr_has
+#from gateway_code.open_nodes.common.node_no import NodeNoBase
+from gateway_code.open_nodes.node_pycom import NodePycom
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__)) + '/'
 
@@ -111,8 +113,12 @@ class TestComplexExperimentRunning(ExperimentRunningMock):
         # The Linux node is really different from the others
         if board_class.TYPE in ('a8', 'rpi3'):
             self._run_simple_experiment_linux_node()
+        # We do not want advance autotests with NodeNoBase board
+        elif isinstance(board_class, NodePycom):
+            return
         else:
             self._run_simple_experiment_node(board_class)
+
 
     def _run_simple_experiment_linux_node(self):
         """ Run an experiment for Linux nodes """
