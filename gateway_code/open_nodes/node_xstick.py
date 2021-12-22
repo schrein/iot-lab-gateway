@@ -34,7 +34,7 @@ class NodeXstick(NodeNoBase):
     """ Open node Digi XStick implemention """
     TYPE = "xstick"
     TTY = '/dev/iotlab/ttyON_XSTICK'
-    BAUDRATE = 57600
+    BAUDRATE = 9600
 
     def __init__(self):
         self.serial_redirection = SerialRedirection(self.TTY, self.BAUDRATE)
