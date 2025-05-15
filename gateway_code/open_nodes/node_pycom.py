@@ -23,12 +23,16 @@
 
 import time
 import logging
+import shlex
+import subprocess
+
 import serial
 
 import gateway_code.common
 from gateway_code.common import logger_call
 from gateway_code.utils.serial_redirection import SerialRedirection
 from gateway_code.open_nodes.common.node_no import NodeNoBase
+
 
 LOGGER = logging.getLogger('gateway_code')
 PYCOM_SAFE_REBOOT_SEQUENCE = {
@@ -37,12 +41,16 @@ PYCOM_SAFE_REBOOT_SEQUENCE = {
 }
 PYCOM_FLASH_ERASE_SEQUENCE = (
     b"import os\r\n",
-    b"os.mkfs('/flash')\r\n",  # Erase the flash
+    b"os.fsformat('/flash')\r\n",  # Erase the flash
 )
 PYCOM_RESET_SEQUENCE = (
     b"import machine\r\n",
     b"machine.reset()\r\n",
 )
+
+PYCOM_UPDATE_BIN = "/usr/bin/python3 " \
+    + "/usr/local/share/pycom/eps32/tools/fw_updater/updater.py"
+PYCOM_FLASH_ERASE_HARD = "{bin} --pic -p {port} erase_fs"
 
 
 class NodePycom(NodeNoBase):
@@ -51,6 +59,7 @@ class NodePycom(NodeNoBase):
     TYPE = 'pycom'
     TTY = '/dev/iotlab/ttyON_PYCOM'
     BAUDRATE = 115200
+    ALIM = '5V'
 
     def __init__(self):
         self.serial_redirection = SerialRedirection(
@@ -80,7 +89,10 @@ class NodePycom(NodeNoBase):
             ssh -L 20000:<pycom node>:20000 <login>@<site>.iot-lab.info
             socat PTY,link=/tmp/ttyS0,echo=0,crnl TCP:localhost:20000
         """
-        ret_val = gateway_code.common.wait_tty(self.TTY, LOGGER, timeout=10)
+        pycom_str = PYCOM_FLASH_ERASE_HARD.format(bin=PYCOM_UPDATE_BIN,
+                                                  port=self.TTY)
+        ret_val = subprocess.call(shlex.split(pycom_str))
+        ret_val += gateway_code.common.wait_tty(self.TTY, LOGGER, timeout=10)
         ret_val += self._send_sequence(PYCOM_SAFE_REBOOT_SEQUENCE, delay=2)
         ret_val += self._send_sequence(PYCOM_FLASH_ERASE_SEQUENCE)
         ret_val += self.reset()
@@ -93,9 +105,12 @@ class NodePycom(NodeNoBase):
         ret_val = self._send_sequence(PYCOM_SAFE_REBOOT_SEQUENCE, delay=2)
         ret_val += self._send_sequence(PYCOM_FLASH_ERASE_SEQUENCE)
         ret_val += self.serial_redirection.stop()
+        pycom_str = PYCOM_FLASH_ERASE_HARD.format(bin=PYCOM_UPDATE_BIN,
+                                                  port=self.TTY)
+        ret_val += subprocess.call(shlex.split(pycom_str))
         return ret_val
 
     @logger_call("Node Pycom: reset node")
-    def reset(self):  # pylint:disable=no-self-use
+    def reset(self):
         """Machine reset of the pycom node."""
         return self._send_sequence(PYCOM_RESET_SEQUENCE)

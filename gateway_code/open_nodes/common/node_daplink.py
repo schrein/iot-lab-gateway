@@ -19,32 +19,15 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL license and that you accept its terms.
 
-""" Open Node FOX experiment implementation """
+""" Open Node based on DAP Link programmer implementation """
 
-from gateway_code.config import static_path
 from gateway_code.open_nodes.common.node_openocd import NodeOpenOCDBase
 
 
-class NodeFox(NodeOpenOCDBase):
-    """ Open node FOX implementation """
+class NodeDapLinkBase(NodeOpenOCDBase):
+    # pylint:disable=no-member
+    """ Open node DAP Link based board implementation """
 
-    # Contrary to m3 node, fox node need some time to be visible.
-    # Also flash/reset may fail after a node start_dc but don't care
-    TYPE = 'fox'
-    TTY = '/dev/iotlab/ttyON_FOX'
-    BAUDRATE = 500000
-    ROM_START_ADDR = 0x08000000
-    OPENOCD_CFG_FILE = static_path('iot-lab.cfg')
-    OPENOCD_OPTS = (static_path('iot-lab-fox.cfg'),)
-    FW_IDLE = static_path('fox_idle.elf')
-    FW_AUTOTEST = static_path('fox_autotest.elf')
-
-    AUTOTEST_AVAILABLE = [
-        'echo', 'get_time',  # mandatory
-        'get_uid',
-        'get_accelero', 'get_gyro', 'get_magneto',
-        'radio_pkt', 'radio_ping_pong',
-        'leds_on', 'leds_off', 'leds_blink',
-        # 'leds_consumption', not precise enough
-        # (0.886405, [0.886405, 0.886405, 0.886405, 0.887015])
-    ]
+    OPENOCD_SERIAL_CMD = "-c 'cmsis_dap_serial {serial}'"
+    TTY = '/dev/iotlab/ttyON_CMSIS_DAP'
+    BAUDRATE = 115200

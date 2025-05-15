@@ -57,7 +57,8 @@ class GatewayManager:  # pylint:disable=too-many-instance-attributes
         # Nodes instance
         self.open_node = self.board_cfg.board_class()
         self.control_node = self.board_cfg.cn_class(
-            self.board_cfg.node_id, self.board_cfg.default_profile)
+            self.board_cfg.node_id, self.board_cfg.default_profile
+        )
         self._nodes = {'control': self.control_node, 'open': self.open_node}
 
         # current experiment infos
@@ -156,7 +157,7 @@ class GatewayManager:  # pylint:disable=too-many-instance-attributes
 
         # with Pycom boards, trigger 2 power-cycle to ensure REPL is correctly
         # started
-        if self.open_node.TYPE == 'pycom':
+        if self.open_node.TYPE == 'pycom' and self.control_node.TYPE != 'no':
             for _ in range(2):
                 LOGGER.debug("Power cycle %s board", self.open_node.TYPE)
                 ret_val += self.control_node.open_stop()
@@ -369,7 +370,7 @@ class GatewayManager:  # pylint:disable=too-many-instance-attributes
         return ret
 
     @common.synchronous('rlock')
-    def sleep(self, seconds):  # pylint:disable=no-self-use
+    def sleep(self, seconds):
         """Sleep `seconds` seconds."""
         time.sleep(seconds)
         return 0
